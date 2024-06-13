@@ -10,13 +10,25 @@ function Detail(props){
     const [tab, setTab] = useState(0)
     const [fade, setFade] = useState('')
     const dispatch = useDispatch()
+
+    let {id} = useParams();
+    let shoe = props.shoes.find((item) => item.id == id);
+
+    useEffect(() => {
+        let watchedArr = localStorage.getItem('watched')
+        watchedArr = JSON.parse(watchedArr)
+        watchedArr.push(shoe.id)
+        watchedArr = new Set(watchedArr)
+        watchedArr = Array.from(watchedArr)
+        localStorage.setItem('watched',JSON.stringify(watchedArr))
+    }, [])
+
     useEffect(() => {
         setTimeout(()=> { setEvent(false)},2000);
         setTimeout(()=> { setFade('end')},100);
-    },[])
+    })
     
-    let {id} = useParams();
-    let shoe = props.shoes.find((item) => item.id == id);
+   
     return(
         <div className={'container start ' + fade}>
             {
@@ -24,7 +36,7 @@ function Detail(props){
             }
             <div className="row">
                 <div className="col-md-6">
-                <img src="https://codingapple1.github.io/shop/shoes1.jpg" width="100%" />
+                <img src={"https://codingapple1.github.io/shop/shoes"+(shoe.id+1)+".jpg"} width="100%" />
                 </div>
                 <div className="col-md-6 mt-4">
                 <h4 className="pt-5">{shoe.title}</h4>

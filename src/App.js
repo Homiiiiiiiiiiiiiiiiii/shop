@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { Col, Container, Nav, Navbar, Row } from 'react-bootstrap';
 import data from './data';
@@ -6,25 +6,43 @@ import{Routes, Route, Link, useNavigate, Outlet} from 'react-router-dom'
 import Detail from './components/Detail';
 import axios from 'axios';
 import Cart from './components/Cart';
+import { useQuery } from 'react-query';
 
 function App() {
+
+  useEffect(() => {
+    let watchedArr = localStorage.getItem('watched')
+    if (watchedArr === undefined) {
+      localStorage.setItem('watched', JSON.stringify([]))
+    }
+  },[])
 
   let [shoes, setShoes] = useState(data);
   const [count, setCount] = useState(1);
   let navigate = useNavigate();
 
+  let result = useQuery('user', () => {
+    return axios.get('https://codingapple1.github.io/userdata.json').then((a) => {
+      return a.data
+    })
+  })
+
+
+
   return (
     <div className="App">
       
 
-      <Navbar bg="dark" data-bs-theme="dark">
+      <Navbar bg="light" variant='light'>
       <Container>
-        <Navbar.Brand href="#home">Shop</Navbar.Brand>
+        <Navbar.Brand onClick={() => {navigate('/')}}>Shop</Navbar.Brand>
         <Nav className="me-auto">
           <Nav.Link onClick={() => {navigate('/')}}>Home</Nav.Link>
-          <Nav.Link onClick={() => {navigate('/detail')}}>Detail</Nav.Link>
           <Nav.Link onClick={() => {navigate('/event')}}>Event</Nav.Link>
           <Nav.Link onClick={() => {navigate('/cart')}}>Cart</Nav.Link>
+        </Nav>
+        <Nav className='ms-auto'>
+          {result.isLoading ? 'Loading' : '반가워요 ' + result.data.name + '님'}
         </Nav>
       </Container>
       </Navbar>
@@ -58,7 +76,6 @@ function App() {
                 let copy = [...shoes, ...res.data];
                 setShoes(copy)
                 setCount(count+1)
-                console.log(count)
               })
               .catch(() => {
                 console.log("ERROR");
@@ -97,9 +114,11 @@ function Card(props){
   return(
     <>
       <Col xs={6} md={4}>
+      <Link className='item' to={`/detail/${props.shoes.id}`}>
         <img src={"https://codingapple1.github.io/shop/shoes"+(props.num +1 )+".jpg"} alt="신발" width='80%'/>
         <h4>{props.shoes.title}</h4>
         <p>{props.shoes.price}</p>
+      </Link>
       </Col>
     </>
   )
